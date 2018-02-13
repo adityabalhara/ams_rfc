@@ -1,0 +1,204 @@
+#!/bin/bash
+Description=$1
+VpcID=$2
+Name=$3
+InstanceAmiId=$4
+InstanceSubnetId=$5
+InstanceDetailedMonitoring=$6
+InstanceEBSOptimized=$7
+InstanceProfile=$8
+InstanceRootVolumeIops=$9
+InstanceRootVolumeName=${10}
+InstanceRootVolumeSize=${11}
+InstanceRootVolumeType=${12}
+InstanceType=${13}
+InstanceUserData=${14}
+
+
+#RUN_ID=` date +%s | sha256sum | base64 | head -c 6 | awk '{print tolower($0)}'`
+#echo "starting run ID: $RUN_ID"
+
+StackRFC='{
+        "ChangeTypeId": "ct-14027q0sjyt1h",
+        "ChangeTypeVersion": "3.0",
+        "Description": "Creating Testing Stack",
+        "WorstCaseScenario": "RFC fails",
+        "ImplementationPlan": "Automated Provisioning",
+        "RollbackPlan": "Manual rollback",
+        "ExpectedOutcome": "Stack Provision successfull",
+        "Title": "Stack Provision",
+        "RequestedStartTime": "START_TIME",
+        "RequestedEndTime": "END_TIME"
+}'
+
+StackParams='{
+        "Description":" '$Description'",
+        "VpcId": "'$VpcID'",
+        "Name": "'$Name'",
+        "TimeoutInMinutes": 60,
+        "Parameters": {
+                "InstanceAmiId": "'$InstanceAmiId'",
+                "InstanceSubnetId": "'$InstanceSubnetId'",
+                "InstanceDetailedMonitoring": '$InstanceDetailedMonitoring',
+                "InstanceEBSOptimized": '$InstanceEBSOptimized',
+                "InstanceProfile": "'$InstanceProfile'",
+                "InstanceRootVolumeIops": '$InstanceRootVolumeIops',
+                "InstanceRootVolumeName": "'$InstanceRootVolumeName'",
+                "InstanceRootVolumeSize": '$InstanceRootVolumeSize',
+                "InstanceRootVolumeType": "'$InstanceRootVolumeType'",
+                "InstanceType": "'$InstanceType'",
+                "InstanceUserData": "'$InstanceUserData'"
+        }
+}'
+
+
+function CreateRFC() {
+  RfcInput=$1
+  RfcParams=$2
+  _RfcOutput=$3
+
+  # Set RFC requested start & end time
+  start_time=`date --date='1 minutes' --utc +%FT%TZ`
+  end_time=`date --date='1 days' --utc +%FT%TZ`
+  RfcInput="${RfcInput/START_TIME/$start_time}"
+  RfcInput="${RfcInput/END_TIME/$end_time}"
+
+  # Create RFC
+  Output=`aws amscm create-rfc --cli-input-json "$RfcInput" --execution-parameters "$RfcParams"`
+  echo $RfcInput
+  echo $RfcParams
+  if [ -z "$Output" ]; then
+    echo 'RFC failed to create'
+    exit 1
+  fi
+  RfcId=`echo "$Output" | sed 's/"//g'`
+  echo 'Created RFC: ' $RfcId
+
+  #Submit RFC
+  Submit=`aws amscm submit-rfc --rfc-id $RfcId`
+
+  #Wait until RFC is completed
+  RfcStatus=''
+  while [ "$RfcStatus" != "Success" ] && [ "$RfcStatus" != "Failure" ] && [ "$RfcStatus" != "Canceled" ] && [ "$RfcStatus" != "Rejected" ]; do
+    sleep 10
+    Rfc=`aws amscm get-rfc --rfc-id $RfcId --output json`
+    RfcStatus=`echo $Rfc | jq '.Rfc.Status.Id' | sed 's/"//g'`
+  done
+
+  # Set _RfcOutput variable and return
+  if [ "$RfcStatus" != "Success" ]; then
+    echo 'RFC failed to execute'
+    exit 1
+  fi
+  eval $_RfcOutput="'$Rfc'"
+  echo $Rfc
+  return 0
+}
+
+
+# 1 - Create Access Stack
+StackRfcOutput=""
+CreateRFC "$StackRFC" "$StackParams" StackRfcOutput
+[SCOTIA\ab51512@ntazy2vhm2qzzth Environment Provision]$ cp ec2_rfc.sh /mnt/EFS_Storage/JENKINS_HOME/workspace/AWS\ Utility/Environment\ Provision/^C
+[SCOTIA\ab51512@ntazy2vhm2qzzth Environment Provision]$ cat ec2_rfc.sh
+#!/bin/bash
+Description=$1
+VpcID=$2
+Name=$3
+InstanceAmiId=$4
+InstanceSubnetId=$5
+InstanceDetailedMonitoring=$6
+InstanceEBSOptimized=$7
+InstanceProfile=$8
+InstanceRootVolumeIops=$9
+InstanceRootVolumeName=${10}
+InstanceRootVolumeSize=${11}
+InstanceRootVolumeType=${12}
+InstanceType=${13}
+InstanceUserData=${14}
+
+
+#RUN_ID=` date +%s | sha256sum | base64 | head -c 6 | awk '{print tolower($0)}'`
+#echo "starting run ID: $RUN_ID"
+
+StackRFC='{
+        "ChangeTypeId": "ct-14027q0sjyt1h",
+        "ChangeTypeVersion": "3.0",
+        "Description": "Creating Testing Stack",
+        "WorstCaseScenario": "RFC fails",
+        "ImplementationPlan": "Automated Provisioning",
+        "RollbackPlan": "Manual rollback",
+        "ExpectedOutcome": "Stack Provision successfull",
+        "Title": "Stack Provision",
+        "RequestedStartTime": "START_TIME",
+        "RequestedEndTime": "END_TIME"
+}'
+
+StackParams='{
+        "Description":" '$Description'",
+        "VpcId": "'$VpcID'",
+        "Name": "'$Name'",
+        "TimeoutInMinutes": 60,
+        "Parameters": {
+                "InstanceAmiId": "'$InstanceAmiId'",
+                "InstanceSubnetId": "'$InstanceSubnetId'",
+                "InstanceDetailedMonitoring": '$InstanceDetailedMonitoring',
+                "InstanceEBSOptimized": '$InstanceEBSOptimized',
+                "InstanceProfile": "'$InstanceProfile'",
+                "InstanceRootVolumeIops": '$InstanceRootVolumeIops',
+                "InstanceRootVolumeName": "'$InstanceRootVolumeName'",
+                "InstanceRootVolumeSize": '$InstanceRootVolumeSize',
+                "InstanceRootVolumeType": "'$InstanceRootVolumeType'",
+                "InstanceType": "'$InstanceType'",
+                "InstanceUserData": "'$InstanceUserData'"
+        }
+}'
+
+
+function CreateRFC() {
+  RfcInput=$1
+  RfcParams=$2
+  _RfcOutput=$3
+
+  # Set RFC requested start & end time
+  start_time=`date --date='1 minutes' --utc +%FT%TZ`
+  end_time=`date --date='1 days' --utc +%FT%TZ`
+  RfcInput="${RfcInput/START_TIME/$start_time}"
+  RfcInput="${RfcInput/END_TIME/$end_time}"
+
+  # Create RFC
+  Output=`aws amscm create-rfc --cli-input-json "$RfcInput" --execution-parameters "$RfcParams"`
+  echo $RfcInput
+  echo $RfcParams
+  if [ -z "$Output" ]; then
+    echo 'RFC failed to create'
+    exit 1
+  fi
+  RfcId=`echo "$Output" | sed 's/"//g'`
+  echo 'Created RFC: ' $RfcId
+
+  #Submit RFC
+  Submit=`aws amscm submit-rfc --rfc-id $RfcId`
+
+  #Wait until RFC is completed
+  RfcStatus=''
+  while [ "$RfcStatus" != "Success" ] && [ "$RfcStatus" != "Failure" ] && [ "$RfcStatus" != "Canceled" ] && [ "$RfcStatus" != "Rejected" ]; do
+    sleep 10
+    Rfc=`aws amscm get-rfc --rfc-id $RfcId --output json`
+    RfcStatus=`echo $Rfc | jq '.Rfc.Status.Id' | sed 's/"//g'`
+  done
+
+  # Set _RfcOutput variable and return
+  if [ "$RfcStatus" != "Success" ]; then
+    echo 'RFC failed to execute'
+    exit 1
+  fi
+  eval $_RfcOutput="'$Rfc'"
+  echo $Rfc
+  return 0
+}
+
+
+# 1 - Create Access Stack
+StackRfcOutput=""
+CreateRFC "$StackRFC" "$StackParams" StackRfcOutput

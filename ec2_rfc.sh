@@ -34,6 +34,36 @@ StackRFC='{
 StackParams='{
         "Description":" '$Description'",
         "VpcId": "'$VpcID'",
+	 "Tags": [
+    {
+      "Value": "'${Name}'",
+      "Key": "Name"
+    },
+    {
+      "Value": "SampleApp",
+      "Key": "Application"
+    },
+    {
+      "Value": "1.8",
+      "Key": "Application Version"
+    },
+    {
+      "Value": "DevTest T1 Ireland",
+      "Key": "Environment Type"
+    },
+    {
+      "Value": "PROJECT",
+      "Key": "Environment Use"
+    },
+    {
+      "Value": "DevOps",
+      "Key": "Owner"
+    },
+    {
+      "Value": "Cloud Migration",
+      "Key": "Business Domain"
+    }
+  	],
         "Name": "'$Name'",
 	"TimeoutInMinutes": 60,
         "Parameters": {

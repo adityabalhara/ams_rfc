@@ -26,7 +26,6 @@ StackParams='{
         "Username": "'$UserID'",
         "TimeRequestedInHours": 8
 }'
-
 function CreateRFC() {
 echo "inside the createRFC function" 
  RfcInput=$1
@@ -80,6 +79,6 @@ echo "inside the createRFC function"
   fi
 }
 
-# 1 - Create Access Stack
+
 StackRfcOutput=""
 CreateRFC "$StackRFC" "$StackParams" StackRfcOutput

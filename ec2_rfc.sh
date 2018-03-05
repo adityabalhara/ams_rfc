@@ -142,7 +142,8 @@ echo "inside the createRFC function"
   echo 'ExecutionOutput as json: ' $ExecutionOutput
   
   stack_id=`echo $ExecutionOutput | jq '.StackId' | sed 's/"//g'`
-  echo 'EC2 stack_id: ' $stack_id
+  echo 'EC2 stack_id: ' $stack_id 
+  echo StackID=$stack_id >> variable.property
 }
 
 # 1 - Create Access Stack

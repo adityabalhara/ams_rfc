@@ -133,6 +133,16 @@ echo "inside the createRFC function"
     echo 'RFC failed to execute'
     exit 1
   fi
+  echo 'rfc: ' $Rfc
+  ExecutionOutput=`echo $Rfc | jq '.Rfc.ExecutionOutput' `
+  echo 'ExecutionOutput as string: ' $ExecutionOutput
+  ExecutionOutput=`echo $ExecutionOutput | sed 's/\\\//g'` #to removing backward slashes
+  ExecutionOutput="${ExecutionOutput%\"}" #to remove first "
+  ExecutionOutput="${ExecutionOutput#\"}" #to remove last "
+  echo 'ExecutionOutput as json: ' $ExecutionOutput
+  
+  stack_id=`echo $ExecutionOutput | jq '.stack_id' | sed 's/"//g'`
+  echo 'EC2 stack_id: ' $stack_id
 }
 
 # 1 - Create Access Stack

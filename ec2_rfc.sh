@@ -141,7 +141,7 @@ echo "inside the createRFC function"
   ExecutionOutput="${ExecutionOutput#\"}" #to remove last "
   echo 'ExecutionOutput as json: ' $ExecutionOutput
   
-  stack_id=`echo $ExecutionOutput | jq '.Stackid' | sed 's/"//g'`
+  stack_id=`echo $ExecutionOutput | jq '.StackId' | sed 's/"//g'`
   echo 'EC2 stack_id: ' $stack_id
 }
 
